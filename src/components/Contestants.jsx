@@ -1,15 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { client } from "../lib/client";
 import PopupInfo from "./PopupInfo";
-import IMG from "../assets/1.jpeg";
-import IMGG from "../assets/2.jpeg";
-import IMGGG from "../assets/3.jpeg";
-import IMGGGG from "../assets/4.jpeg";
-import IMGGGGG from "../assets/5.jpg";
-import IMGGGGGG from "../assets/6.jpg";
-import IMGGGGGGG from "../assets/7.jpg";
 
 function Contestants() {
+  const [stories, setStories] = useState([]);
   const [choice, setChoice] = useState("1140c6f7-9964-4066-986d-1be168903d28");
+
+  useEffect(() => {
+    client
+      .fetch(
+        `*[_type == "post"] {
+          title,
+          slug,
+          publishedAt,
+          body,
+          mainImage{
+            asset ->{
+              _id,
+              url
+            },
+            alt
+          },
+        } | order(publishedAt desc)`
+      )
+      .then((data) => {
+        setStories(data);
+      })
+      .catch(console.error);
+  }, []);
 
   return (
     <section>
@@ -59,16 +77,19 @@ function Contestants() {
         </div>
       </div>
 
-      {persons && (
+      {stories && (
         <div className="mt-16 grid gap-y-12 gap-x-10 md:grid-cols-2 lg:grid-cols-3">
-          {persons.map((items, index) => (
-            <div key={index} className="rounded-2xl overflow-hidden">
+          {stories.map((items) => (
+            <div
+              key={items.slug.current}
+              className="rounded-2xl overflow-hidden"
+            >
               <div className="h-[350px]">
-                {items.img && (
+                {items.mainImage && (
                   <img
                     className="h-full w-full object-cover object-center"
-                    src={items.img}
-                    alt={items.vote}
+                    src={items.mainImage.asset.url}
+                    alt={items.mainImage.alt}
                     loading="lazy"
                   />
                 )}
@@ -76,10 +97,10 @@ function Contestants() {
               <div className="bg-[#F8F8F8] px-6 py-5 flex flex-col items-start">
                 <h3 className="text-2xl font-bold capitalize">{items.title}</h3>
                 <p className="text-[#000000] font-medium text-base mb-5">
-                  {`Total Votes: ${items.vote}`}
+                  {`Total Votes: ${items.body[0].children[0].text}`}
                 </p>
                 <div className="w-full">
-                  <PopupInfo value={`Vote ${items.name}`} />
+                  <PopupInfo value={`Vote ${items.title}`} />
                 </div>
               </div>
             </div>
@@ -91,41 +112,3 @@ function Contestants() {
 }
 
 export default Contestants;
-
-const persons = [
-  {
-    name: "Contestant 001",
-    vote: "132",
-    img: IMG,
-  },
-  {
-    name: "Contestant 002",
-    vote: "153",
-    img: IMGG,
-  },
-  {
-    name: "Contestant 003",
-    vote: "160",
-    img: IMGGG,
-  },
-  {
-    name: "Contestant 004",
-    vote: "98",
-    img: IMGGGG,
-  },
-  {
-    name: "Contestant 005",
-    vote: "150",
-    img: IMGGGGG,
-  },
-  {
-    name: "Contestant 006",
-    vote: "134",
-    img: IMGGGGGG,
-  },
-  {
-    name: "Contestant 007",
-    vote: "190",
-    img: IMGGGGGGG,
-  },
-];
