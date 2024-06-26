@@ -1,8 +1,8 @@
 import SanityClient from "@sanity/client";
 
 export const client = SanityClient({
-  projectId: "awq727x1",
+  projectId: "qywa00ng",
   dataset: "production",
-  apiVersion: "2024-01-10",
+  apiVersion: "2024-06-26",
   useCdn: true,
 });
